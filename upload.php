@@ -37,30 +37,33 @@
                $product = new Product($idProduct);
                $referenceProduct = $product->reference;
 
-               $exists = existsAttribute($product, $idAttribute);
-
-               if ($exists == 0) {
+               if($product->active == 1) {
                   
-                  $idProductAttribute = addCombination($product, $referenceProduct, $idAttribute);
-                  if ($idProductAttribute > 0) {
-                     $suppliers = getSuppliers($product);
+                  $exists = existsAttribute($product, $idAttribute);
 
-                     foreach ($suppliers as $id_supplier => $valor) {
-                        $product->addSupplierReference($id_supplier, (int)$idProductAttribute, $referenceProduct.'-P');                        
+                  if ($exists == 0) {
+                     
+                     $idProductAttribute = addCombination($product, $referenceProduct, $idAttribute);
+                     if ($idProductAttribute > 0) {
+                        $suppliers = getSuppliers($product);
+
+                        foreach ($suppliers as $id_supplier => $valor) {
+                           $product->addSupplierReference($id_supplier, (int)$idProductAttribute, $referenceProduct.'-P');                        
+                        }
+
+                        $product->checkDefaultAttributes();
+
+                        if($SpecificPricePercentage > 0){
+                           $reduction = $SpecificPricePercentage/100;
+                           addSpecificPrice($product, $idProductAttribute, $reduction, 'percentage');
+                        }
+
+                        addWarehouseCentral($product, $idProductAttribute);
+
+                        addLink($product, $link);
                      }
-
-                     $product->checkDefaultAttributes();
-
-                     if($SpecificPricePercentage > 0){
-                        $reduction = $SpecificPricePercentage/100;
-                        addSpecificPrice($product, $idProductAttribute, $reduction, 'percentage');
-                     }
-
-                     addWarehouseCentral($product, $idProductAttribute);
-
-                     addLink($product, $link);
+                     
                   }
-                  
                }
             }
             
